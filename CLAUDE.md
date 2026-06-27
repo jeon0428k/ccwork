@@ -40,6 +40,13 @@ src/
 
 **백엔드**: `db.json`이 JSON Server의 데이터 소스. `src/api/notes.ts`는 순수 fetch 함수만 포함하며, 타임스탬프(`createdAt`, `updatedAt`) 세팅도 여기서 처리한다.
 
+## 디자인 시스템
+
+**모든 스타일/UI 작업은 "Sanctuary Archive" 디자인 시스템을 따른다.** 정본은 [`docs/design-system/`](docs/design-system/), 작업 시 `design-system` 스킬이 자동 발동해 작업 유형에 맞는 조각만 읽도록 라우팅한다. 토큰·컴포넌트 스펙·Do/Don't는 모두 그 문서에 있으므로 여기 중복하지 않는다.
+
+- 핵심 원칙: **Editorial Serif**(Playfair Display + Source Serif 4, 한글은 Noto Serif KR 폴백) · **Warm Parchment**(어스톤, 순수 검정·순백 회피) · **Tonal & Letterpress Depth**(흐릿한 그림자 대신 톤 레이어 + 음각) · **Analog Object**(여백 프레임).
+- **자동 검사**: `.tsx/.jsx/.ts/.css/.scss` 저장 시 PostToolUse hook(`.claude/hooks/design-system-check.sh`)이 `dont.md` 위반을 검사한다 — 순수 검정·흐릿한 그림자·`rounded-3xl`은 차단(exit 2), 중성 그레이·산세리프 등은 경고. `.claude/settings.json`에 등록되어 별도 설정 없이 동작한다.
+
 ## 구현 패턴
 
 ### 컴포넌트
@@ -72,13 +79,9 @@ src/
 - API 함수: `fetchNotes`, `createNote`, `updateNote`, `deleteNote`
 - Context 노출 함수: `createNote`, `updateNote`, `deleteNote` (API와 동일 동사)
 
----
+## ⚠️ 알려진 이슈
 
-## ⚠️ 발견된 불일치 패턴
-
-- **useEffect 의존성 누락**: `NoteEditor`의 useEffect가 `selectedNote`를 의존성에서 제외하고 `eslint-disable` 주석으로 억제 중 (`NoteEditor.tsx:27`).
-
----
+- **useEffect 의존성 누락**: `NoteEditor`의 useEffect가 `eslint-disable`로 deps 경고를 억제 중 (`NoteEditor.tsx:27`).
 
 ## 커밋 규칙
 
