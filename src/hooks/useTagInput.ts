@@ -11,10 +11,13 @@ interface UseTagInput {
 export function useTagInput(initialTags: string[]): UseTagInput {
   const [tags, setTags] = useState<string[]>(initialTags);
 
-  // 최소 가드: 빈 문자열만 무시 (상세 trim·중복·한도 검증은 TAG-4/TAG-5)
+  // 빈값 + 대소문자 무시 중복 게이트. trim·길이·개수는 TAG-5
   const addTag = (raw: string) => {
     if (!raw) return;
-    setTags((prev) => [...prev, raw]);
+    // 중복이면 원본 표기를 유지한 채 무시 (조용히 input만 비워짐)
+    setTags((prev) =>
+      prev.some((t) => t.toLowerCase() === raw.toLowerCase()) ? prev : [...prev, raw],
+    );
   };
 
   // 값 정확 일치로 제거. 미존재 태그면 no-op (filter 결과 동일)

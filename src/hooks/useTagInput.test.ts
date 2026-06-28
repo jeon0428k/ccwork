@@ -31,6 +31,49 @@ describe('useTagInput.addTag', () => {
   });
 });
 
+// 시나리오 2.1(TAG-4) — addTag 대소문자 무시 중복 게이트
+describe('useTagInput.addTag (중복 방지)', () => {
+  it('should not add a duplicate tag with identical casing', () => {
+    const { result } = renderHook(() => useTagInput(['React']));
+
+    act(() => result.current.addTag('React'));
+
+    expect(result.current.tags).toEqual(['React']);
+  });
+
+  it('should not add a duplicate that differs only in case', () => {
+    const { result } = renderHook(() => useTagInput(['React']));
+
+    act(() => result.current.addTag('react'));
+
+    expect(result.current.tags).toHaveLength(1);
+  });
+
+  it('should preserve the existing original casing when a case-variant is attempted', () => {
+    const { result } = renderHook(() => useTagInput(['React']));
+
+    act(() => result.current.addTag('react'));
+
+    expect(result.current.tags).toEqual(['React']);
+  });
+
+  it('should add a non-duplicate tag normally', () => {
+    const { result } = renderHook(() => useTagInput(['React']));
+
+    act(() => result.current.addTag('Vue'));
+
+    expect(result.current.tags).toEqual(['React', 'Vue']);
+  });
+
+  it('should compare case-insensitively for any case form', () => {
+    const { result } = renderHook(() => useTagInput(['React']));
+
+    act(() => result.current.addTag('REACT'));
+
+    expect(result.current.tags).toEqual(['React']);
+  });
+});
+
 // 시나리오 2.2 — 초기화 · reset
 describe('useTagInput (초기화/reset)', () => {
   it('should initialize tags from initialTags when mounted', () => {
