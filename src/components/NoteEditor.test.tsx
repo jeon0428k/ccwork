@@ -176,3 +176,39 @@ describe('NoteEditor (태그 삭제 후 저장)', () => {
     );
   });
 });
+
+// 시나리오 2.2(TAG-4) — NoteEditor (중복 방지 통합: input 비움 / 원본 저장)
+describe('NoteEditor (중복 태그 방지)', () => {
+  it('should keep a single chip and clear the input when the same tag is entered twice', async () => {
+    const user = userEvent.setup();
+    renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
+
+    const tagInput = screen.getByPlaceholderText('태그 추가');
+    await user.type(tagInput, 'React{Enter}');
+    await user.type(tagInput, 'React{Enter}');
+
+    expect(screen.getAllByText('React')).toHaveLength(1);
+    expect(tagInput).toHaveValue('');
+  });
+
+  it('should persist the original casing React (not lowercased) when saving after entering React', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.createNote).mockResolvedValue({
+      id: '2',
+      title: '제목',
+      content: '',
+      tags: ['React'],
+      createdAt: '',
+      updatedAt: '',
+    });
+    renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
+
+    await user.type(screen.getByPlaceholderText('제목'), '제목');
+    await user.type(screen.getByPlaceholderText('태그 추가'), 'React{Enter}');
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitFor(() =>
+      expect(api.createNote).toHaveBeenCalledWith({ title: '제목', content: '', tags: ['React'] }),
+    );
+  });
+});
