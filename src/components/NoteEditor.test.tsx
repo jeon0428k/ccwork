@@ -94,3 +94,65 @@ describe('NoteEditor (태그 표시)', () => {
     expect(screen.getAllByRole('textbox')).toHaveLength(3);
   });
 });
+
+// 시나리오 2.4(TAG-2) — NoteEditor (삭제 후 저장 반영)
+describe('NoteEditor (태그 삭제 후 저장)', () => {
+  async function openNoteWithTags(tags: string[]) {
+    vi.mocked(api.fetchNotes).mockResolvedValue([
+      { id: '1', title: '제목1', content: '본문1', tags, createdAt: '', updatedAt: '' },
+    ]);
+    vi.mocked(api.updateNote).mockResolvedValue({
+      id: '1',
+      title: '제목1',
+      content: '본문1',
+      tags,
+      createdAt: '',
+      updatedAt: '',
+    });
+
+    const view = render(
+      <NotesProvider>
+        <NoteEditor selectedNoteId={null} isCreating={false} onDone={vi.fn()} />
+      </NotesProvider>,
+    );
+    await act(async () => {});
+    view.rerender(
+      <NotesProvider>
+        <NoteEditor selectedNoteId="1" isCreating={false} onDone={vi.fn()} />
+      </NotesProvider>,
+    );
+    return view;
+  }
+
+  it('should persist the remaining tags excluding the removed one when saving after a chip is removed', async () => {
+    const user = userEvent.setup();
+    await openNoteWithTags(['React', 'TypeScript']);
+
+    await user.click(await screen.findByRole('button', { name: 'React 태그 삭제' }));
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitFor(() =>
+      expect(api.updateNote).toHaveBeenCalledWith('1', {
+        title: '제목1',
+        content: '본문1',
+        tags: ['TypeScript'],
+      }),
+    );
+  });
+
+  it('should persist tags: [] when the only tag is removed and then saved', async () => {
+    const user = userEvent.setup();
+    await openNoteWithTags(['solo']);
+
+    await user.click(await screen.findByRole('button', { name: 'solo 태그 삭제' }));
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitFor(() =>
+      expect(api.updateNote).toHaveBeenCalledWith('1', {
+        title: '제목1',
+        content: '본문1',
+        tags: [],
+      }),
+    );
+  });
+});
