@@ -4,11 +4,12 @@ import { Chip } from './Chip';
 interface ChipInputProps {
   tags: string[];
   onAddTag: (raw: string) => void; // Enter/쉼표 시
+  onRemoveTag: (tag: string) => void; // 칩 × 클릭 시
   placeholder?: string;
 }
 
 // dumb 컴포넌트: 내부 텍스트 상태만 보유, 확정 시 onAddTag 위임 후 비움
-export function ChipInput({ tags, onAddTag, placeholder }: ChipInputProps) {
+export function ChipInput({ tags, onAddTag, onRemoveTag, placeholder }: ChipInputProps) {
   const [text, setText] = useState('');
 
   const commit = () => {
@@ -27,7 +28,7 @@ export function ChipInput({ tags, onAddTag, placeholder }: ChipInputProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {tags.map((tag, i) => (
-        <Chip key={`${tag}-${i}`} label={tag} />
+        <Chip key={`${tag}-${i}`} label={tag} onRemove={() => onRemoveTag(tag)} />
       ))}
       <input
         type="text"

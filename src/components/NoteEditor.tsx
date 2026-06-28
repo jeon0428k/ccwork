@@ -16,7 +16,7 @@ export function NoteEditor({ selectedNoteId, isCreating, onDone }: NoteEditorPro
   const [saving, setSaving] = useState(false);
 
   const selectedNote = notes.find((n) => n.id === selectedNoteId);
-  const { tags, addTag, reset } = useTagInput(selectedNote?.tags ?? []);
+  const { tags, addTag, removeTag, reset } = useTagInput(selectedNote?.tags ?? []);
 
   // 선택된 노트가 바뀔 때 폼 동기화 (레거시 노트는 note.tags ?? [] 폴백)
   useEffect(() => {
@@ -81,7 +81,7 @@ export function NoteEditor({ selectedNoteId, isCreating, onDone }: NoteEditorPro
       <div className="h-px bg-border mb-4" />
 
       {/* 태그 입력 */}
-      <ChipInput tags={tags} onAddTag={addTag} placeholder="태그 추가" />
+      <ChipInput tags={tags} onAddTag={addTag} onRemoveTag={removeTag} placeholder="태그 추가" />
 
       {/* 구분선 */}
       <div className="h-px bg-border my-4" />
