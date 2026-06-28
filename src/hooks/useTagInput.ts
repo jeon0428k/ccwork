@@ -3,6 +3,7 @@ import { useState } from 'react';
 interface UseTagInput {
   tags: string[];
   addTag: (raw: string) => void; // Enter/쉼표 확정 시
+  removeTag: (tag: string) => void; // × 클릭 시 해당 태그 제거
   reset: (tags: string[]) => void; // 노트 전환 시 폼 재동기화
 }
 
@@ -15,7 +16,10 @@ export function useTagInput(initialTags: string[]): UseTagInput {
     setTags((prev) => [...prev, raw]);
   };
 
+  // 값 정확 일치로 제거. 미존재 태그면 no-op (filter 결과 동일)
+  const removeTag = (tag: string) => setTags((prev) => prev.filter((t) => t !== tag));
+
   const reset = (next: string[]) => setTags(next);
 
-  return { tags, addTag, reset };
+  return { tags, addTag, removeTag, reset };
 }

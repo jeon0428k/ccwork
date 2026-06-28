@@ -54,3 +54,38 @@ describe('useTagInput (초기화/reset)', () => {
     expect(result.current.tags).toEqual(['new1', 'new2']);
   });
 });
+
+// 시나리오 2.1(TAG-2) — removeTag
+describe('useTagInput.removeTag', () => {
+  it('should remove the matching tag from tags when called with an existing value', () => {
+    const { result } = renderHook(() => useTagInput(['react']));
+
+    act(() => result.current.removeTag('react'));
+
+    expect(result.current.tags).toEqual([]);
+  });
+
+  it('should keep the remaining tags and their order when removing one', () => {
+    const { result } = renderHook(() => useTagInput(['React', 'TypeScript']));
+
+    act(() => result.current.removeTag('React'));
+
+    expect(result.current.tags).toEqual(['TypeScript']);
+  });
+
+  it('should be a no-op when called with a tag that is not present', () => {
+    const { result } = renderHook(() => useTagInput(['React', 'TypeScript']));
+
+    act(() => result.current.removeTag('Vue'));
+
+    expect(result.current.tags).toEqual(['React', 'TypeScript']);
+  });
+
+  it('should result in [] when removing the only remaining tag', () => {
+    const { result } = renderHook(() => useTagInput(['solo']));
+
+    act(() => result.current.removeTag('solo'));
+
+    expect(result.current.tags).toEqual([]);
+  });
+});
