@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 React 19 + TypeScript + Vite 기반 노트 앱 실습 프로젝트. JSON Server를 로컬 REST API 백엔드로 사용한다.
 
 - 앱: http://localhost:5173
-- API: http://localhost:3001/notes
+- API: http://localhost:3003/notes
 
 ## 주요 명령어
 
@@ -26,7 +26,7 @@ npm run test:watch # vitest (watch 모드)
 ```
 src/
 ├── types/note.ts          # Note 인터페이스 (id, title, content, createdAt, updatedAt)
-├── api/notes.ts           # fetch 기반 CRUD 함수 (API_URL=http://localhost:3001)
+├── api/notes.ts           # fetch 기반 CRUD 함수 (API_URL=http://localhost:3003)
 ├── context/NotesContext.tsx  # 전역 상태: notes[], loading, error + addNote/editNote/removeNote
 ├── components/
 │   ├── Layout.tsx         # sidebar + main 슬롯을 받는 레이아웃
