@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ChipInput } from './ChipInput';
 
@@ -77,6 +77,49 @@ describe('ChipInput', () => {
 
     expect(screen.getByText('react')).toBeInTheDocument();
     expect(screen.getByText('tdd')).toBeInTheDocument();
+  });
+
+  // 한글 IME 버그 — 조합 중 Enter는 commit 하지 않는다(이중 입력 방지)
+  it('should not call onAddTag when Enter is pressed during IME composition', () => {
+    const onAddTag = vi.fn();
+    render(
+      <ChipInput
+        tags={[]}
+        onAddTag={onAddTag}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 추가"
+      />,
+    );
+    const input = screen.getByPlaceholderText('태그 추가');
+
+    // 한글 조합 중인 상태에서 Enter (조합 확정용 keydown, isComposing=true)
+    fireEvent.change(input, { target: { value: '안녕' } });
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+
+    expect(onAddTag).not.toHaveBeenCalled();
+  });
+
+  it('should commit only once when Enter follows the composition-ending Enter (Korean)', () => {
+    const onAddTag = vi.fn();
+    render(
+      <ChipInput
+        tags={[]}
+        onAddTag={onAddTag}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 추가"
+      />,
+    );
+    const input = screen.getByPlaceholderText('태그 추가');
+
+    fireEvent.change(input, { target: { value: '안녕' } });
+    // 1) 조합 확정 Enter(무시되어야 함) → 2) 실제 Enter(1회 commit)
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(onAddTag).toHaveBeenCalledTimes(1);
+    expect(onAddTag).toHaveBeenCalledWith('안녕');
   });
 
   it('should not call onAddTag when the input is empty and Enter is pressed', async () => {

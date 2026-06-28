@@ -26,6 +26,8 @@ export function ChipInput({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    // 한글 등 IME 조합 중의 keydown은 무시 — 조합 확정 Enter가 commit을 두 번 트리거하는 것을 막는다
+    if (e.nativeEvent.isComposing) return;
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault(); // 쉼표 문자가 입력값에 들어가지 않도록 차단
       commit();
