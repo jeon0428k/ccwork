@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNotes } from '../context/NotesContext';
+import { useTagInput } from '../hooks/useTagInput';
+import { ChipInput } from './ChipInput';
 
 interface NoteEditorProps {
   selectedNoteId: string | null;
@@ -14,15 +16,18 @@ export function NoteEditor({ selectedNoteId, isCreating, onDone }: NoteEditorPro
   const [saving, setSaving] = useState(false);
 
   const selectedNote = notes.find((n) => n.id === selectedNoteId);
+  const { tags, addTag, reset } = useTagInput(selectedNote?.tags ?? []);
 
-  // 선택된 노트가 바뀔 때 폼 동기화
+  // 선택된 노트가 바뀔 때 폼 동기화 (레거시 노트는 note.tags ?? [] 폴백)
   useEffect(() => {
     if (selectedNote) {
       setTitle(selectedNote.title);
       setContent(selectedNote.content);
+      reset(selectedNote.tags ?? []);
     } else if (isCreating) {
       setTitle('');
       setContent('');
+      reset([]);
     }
   }, [selectedNoteId, isCreating]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -32,9 +37,9 @@ export function NoteEditor({ selectedNoteId, isCreating, onDone }: NoteEditorPro
     setSaving(true);
     try {
       if (isCreating) {
-        await createNote(title, content);
+        await createNote(title, content, tags);
       } else if (selectedNoteId) {
-        await updateNote(selectedNoteId, { title, content });
+        await updateNote(selectedNoteId, { title, content, tags });
       }
       onDone();
     } catch (e) {
@@ -50,16 +55,14 @@ export function NoteEditor({ selectedNoteId, isCreating, onDone }: NoteEditorPro
       <div className="flex items-center justify-center h-full">
         <div className="text-center space-y-3">
           <p className="text-5xl">📝</p>
-          <p className="text-muted-foreground text-sm">
-            노트를 선택하거나 새 노트를 만드세요
-          </p>
+          <p className="text-muted-foreground text-sm">노트를 선택하거나 새 노트를 만드세요</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-card rounded-3xl px-8 sm:px-12 py-8 shadow-[0_2px_12px_rgba(0,0,0,0.07)] border border-border max-w-2xl">
+    <div className="bg-card rounded-xl px-8 sm:px-12 py-8 shadow-[0_2px_12px_rgba(0,0,0,0.07)] border border-border max-w-2xl">
       {/* 섹션 라벨 */}
       <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground mb-6">
         {isCreating ? '새 노트' : '노트 편집'}
@@ -76,6 +79,12 @@ export function NoteEditor({ selectedNoteId, isCreating, onDone }: NoteEditorPro
 
       {/* 구분선 */}
       <div className="h-px bg-border mb-4" />
+
+      {/* 태그 입력 */}
+      <ChipInput tags={tags} onAddTag={addTag} placeholder="태그 추가" />
+
+      {/* 구분선 */}
+      <div className="h-px bg-border my-4" />
 
       {/* 내용 입력 */}
       <textarea
