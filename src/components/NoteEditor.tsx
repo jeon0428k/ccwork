@@ -86,7 +86,7 @@ export function NoteEditor({ selectedNoteId, isCreating, onDone }: NoteEditorPro
         onAddTag={addTag}
         onRemoveTag={removeTag}
         onRemoveLast={removeLast}
-        placeholder="태그 추가"
+        placeholder="태그 입력 후 Enter"
       />
 
       {/* 구분선 */}

@@ -44,7 +44,8 @@ export function ChipInput({
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder={placeholder}
+        aria-label="태그 입력"
+        placeholder={tags.length === 0 ? placeholder : undefined}
         maxLength={15}
         className="flex-1 min-w-32 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground/50"
       />

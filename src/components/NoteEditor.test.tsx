@@ -162,7 +162,7 @@ describe('NoteEditor (태그 삭제 후 저장)', () => {
     await openNoteWithTags(['React', 'TypeScript']);
 
     // 태그 input(placeholder)에 포커스 → 빈 상태에서 Backspace → 마지막 칩(TypeScript) 삭제
-    const input = await screen.findByPlaceholderText('태그 추가');
+    const input = await screen.findByRole('textbox', { name: '태그 입력' });
     input.focus();
     await user.keyboard('{Backspace}');
     await user.click(screen.getByRole('button', { name: '저장' }));
@@ -183,7 +183,7 @@ describe('NoteEditor (중복 태그 방지)', () => {
     const user = userEvent.setup();
     renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
 
-    const tagInput = screen.getByPlaceholderText('태그 추가');
+    const tagInput = screen.getByRole('textbox', { name: '태그 입력' });
     await user.type(tagInput, 'React{Enter}');
     await user.type(tagInput, 'React{Enter}');
 
@@ -204,7 +204,7 @@ describe('NoteEditor (중복 태그 방지)', () => {
     renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
 
     await user.type(screen.getByPlaceholderText('제목'), '제목');
-    await user.type(screen.getByPlaceholderText('태그 추가'), 'React{Enter}');
+    await user.type(screen.getByRole('textbox', { name: '태그 입력' }), 'React{Enter}');
     await user.click(screen.getByRole('button', { name: '저장' }));
 
     await waitFor(() =>
@@ -228,11 +228,77 @@ describe('NoteEditor (입력 검증)', () => {
     renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
 
     await user.type(screen.getByPlaceholderText('제목'), '제목');
-    await user.type(screen.getByPlaceholderText('태그 추가'), '  React  {Enter}');
+    await user.type(screen.getByRole('textbox', { name: '태그 입력' }), '  React  {Enter}');
     await user.click(screen.getByRole('button', { name: '저장' }));
 
     await waitFor(() =>
       expect(api.createNote).toHaveBeenCalledWith({ title: '제목', content: '', tags: ['React'] }),
     );
+  });
+});
+
+// 시나리오 2.2(TAG-6) — NoteEditor (빈 태그 상태 UX)
+describe('NoteEditor (빈 태그 상태 UX)', () => {
+  it('should show placeholder 태그 입력 후 Enter on the tag input when a note has no tags', async () => {
+    renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
+
+    // 노트 목록 fetch 완료까지 대기(act 경고 방지) 후 placeholder 확인
+    expect(await screen.findByRole('textbox', { name: '태그 입력' })).toHaveAttribute(
+      'placeholder',
+      '태그 입력 후 Enter',
+    );
+  });
+
+  it('should not show the tag placeholder when the note has one or more tags', async () => {
+    const user = userEvent.setup();
+    renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
+
+    await user.type(screen.getByRole('textbox', { name: '태그 입력' }), 'React{Enter}');
+
+    expect(screen.getByRole('textbox', { name: '태그 입력' })).not.toHaveAttribute('placeholder');
+  });
+
+  it('should save a note with no tags (createNote called with tags: []) without error', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.createNote).mockResolvedValue({
+      id: '2',
+      title: '제목',
+      content: '',
+      tags: [],
+      createdAt: '',
+      updatedAt: '',
+    });
+    renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
+
+    await user.type(screen.getByPlaceholderText('제목'), '제목');
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitFor(() =>
+      expect(api.createNote).toHaveBeenCalledWith({ title: '제목', content: '', tags: [] }),
+    );
+  });
+
+  it('should reopen a no-tag note showing only the placeholder (no chips, no error)', async () => {
+    vi.mocked(api.fetchNotes).mockResolvedValue([
+      { id: '1', title: '제목1', content: '본문1', tags: [], createdAt: '', updatedAt: '' },
+    ]);
+    const view = render(
+      <NotesProvider>
+        <NoteEditor selectedNoteId={null} isCreating={false} onDone={vi.fn()} />
+      </NotesProvider>,
+    );
+    await act(async () => {});
+    view.rerender(
+      <NotesProvider>
+        <NoteEditor selectedNoteId="1" isCreating={false} onDone={vi.fn()} />
+      </NotesProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByPlaceholderText('제목')).toHaveValue('제목1'));
+    expect(screen.getByRole('textbox', { name: '태그 입력' })).toHaveAttribute(
+      'placeholder',
+      '태그 입력 후 Enter',
+    );
+    expect(screen.queryByRole('button', { name: /태그 삭제/ })).not.toBeInTheDocument();
   });
 });
