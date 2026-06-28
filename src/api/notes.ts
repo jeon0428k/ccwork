@@ -1,6 +1,6 @@
 import { Note } from '../types/note';
 
-const API_URL = 'http://localhost:3003';
+const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3003';
 
 export async function fetchNotes(): Promise<Note[]> {
   const res = await fetch(`${API_URL}/notes`);
