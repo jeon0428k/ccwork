@@ -89,3 +89,30 @@ describe('useTagInput.removeTag', () => {
     expect(result.current.tags).toEqual([]);
   });
 });
+
+// 시나리오 2.1(TAG-3) — removeLast
+describe('useTagInput.removeLast', () => {
+  it('should remove the last tag from tags when there is at least one tag', () => {
+    const { result } = renderHook(() => useTagInput(['React', 'TypeScript']));
+
+    act(() => result.current.removeLast());
+
+    expect(result.current.tags).toEqual(['React']);
+  });
+
+  it('should be a no-op when tags is empty', () => {
+    const { result } = renderHook(() => useTagInput([]));
+
+    act(() => result.current.removeLast());
+
+    expect(result.current.tags).toEqual([]);
+  });
+
+  it('should result in [] when removing the only remaining tag', () => {
+    const { result } = renderHook(() => useTagInput(['solo']));
+
+    act(() => result.current.removeLast());
+
+    expect(result.current.tags).toEqual([]);
+  });
+});

@@ -9,7 +9,13 @@ describe('ChipInput', () => {
     const user = userEvent.setup();
     const onAddTag = vi.fn();
     render(
-      <ChipInput tags={[]} onAddTag={onAddTag} onRemoveTag={vi.fn()} placeholder="태그 추가" />,
+      <ChipInput
+        tags={[]}
+        onAddTag={onAddTag}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 추가"
+      />,
     );
     const input = screen.getByPlaceholderText('태그 추가');
 
@@ -23,7 +29,13 @@ describe('ChipInput', () => {
     const user = userEvent.setup();
     const onAddTag = vi.fn();
     render(
-      <ChipInput tags={[]} onAddTag={onAddTag} onRemoveTag={vi.fn()} placeholder="태그 추가" />,
+      <ChipInput
+        tags={[]}
+        onAddTag={onAddTag}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 추가"
+      />,
     );
     const input = screen.getByPlaceholderText('태그 추가');
 
@@ -37,7 +49,13 @@ describe('ChipInput', () => {
     const user = userEvent.setup();
     const onAddTag = vi.fn();
     render(
-      <ChipInput tags={[]} onAddTag={onAddTag} onRemoveTag={vi.fn()} placeholder="태그 추가" />,
+      <ChipInput
+        tags={[]}
+        onAddTag={onAddTag}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 추가"
+      />,
     );
     const input = screen.getByPlaceholderText('태그 추가');
 
@@ -48,7 +66,14 @@ describe('ChipInput', () => {
   });
 
   it('should render the given tags as chips', () => {
-    render(<ChipInput tags={['react', 'tdd']} onAddTag={vi.fn()} onRemoveTag={vi.fn()} />);
+    render(
+      <ChipInput
+        tags={['react', 'tdd']}
+        onAddTag={vi.fn()}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+      />,
+    );
 
     expect(screen.getByText('react')).toBeInTheDocument();
     expect(screen.getByText('tdd')).toBeInTheDocument();
@@ -58,7 +83,13 @@ describe('ChipInput', () => {
     const user = userEvent.setup();
     const onAddTag = vi.fn();
     render(
-      <ChipInput tags={[]} onAddTag={onAddTag} onRemoveTag={vi.fn()} placeholder="태그 추가" />,
+      <ChipInput
+        tags={[]}
+        onAddTag={onAddTag}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 추가"
+      />,
     );
     const input = screen.getByPlaceholderText('태그 추가');
 
@@ -71,7 +102,14 @@ describe('ChipInput', () => {
 // 시나리오 2.3(TAG-2) — ChipInput (삭제 위임)
 describe('ChipInput (삭제)', () => {
   it('should render each tag chip with a remove(×) button', () => {
-    render(<ChipInput tags={['react', 'tdd']} onAddTag={vi.fn()} onRemoveTag={vi.fn()} />);
+    render(
+      <ChipInput
+        tags={['react', 'tdd']}
+        onAddTag={vi.fn()}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+      />,
+    );
 
     expect(screen.getByRole('button', { name: 'react 태그 삭제' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'tdd 태그 삭제' })).toBeInTheDocument();
@@ -80,7 +118,14 @@ describe('ChipInput (삭제)', () => {
   it('should call onRemoveTag with the tag value when that chip × is clicked', async () => {
     const user = userEvent.setup();
     const onRemoveTag = vi.fn();
-    render(<ChipInput tags={['react']} onAddTag={vi.fn()} onRemoveTag={onRemoveTag} />);
+    render(
+      <ChipInput
+        tags={['react']}
+        onAddTag={vi.fn()}
+        onRemoveTag={onRemoveTag}
+        onRemoveLast={vi.fn()}
+      />,
+    );
 
     await user.click(screen.getByRole('button', { name: 'react 태그 삭제' }));
 
@@ -91,12 +136,81 @@ describe('ChipInput (삭제)', () => {
     const user = userEvent.setup();
     const onRemoveTag = vi.fn();
     render(
-      <ChipInput tags={['React', 'TypeScript']} onAddTag={vi.fn()} onRemoveTag={onRemoveTag} />,
+      <ChipInput
+        tags={['React', 'TypeScript']}
+        onAddTag={vi.fn()}
+        onRemoveTag={onRemoveTag}
+        onRemoveLast={vi.fn()}
+      />,
     );
 
     await user.click(screen.getByRole('button', { name: 'React 태그 삭제' }));
 
     expect(onRemoveTag).toHaveBeenCalledWith('React');
     expect(onRemoveTag).not.toHaveBeenCalledWith('TypeScript');
+  });
+});
+
+// 시나리오 2.2(TAG-3) — ChipInput (Backspace 위임)
+describe('ChipInput (Backspace)', () => {
+  it('should call onRemoveLast when Backspace is pressed and the input is empty', async () => {
+    const user = userEvent.setup();
+    const onRemoveLast = vi.fn();
+    render(
+      <ChipInput
+        tags={['React']}
+        onAddTag={vi.fn()}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={onRemoveLast}
+        placeholder="태그 추가"
+      />,
+    );
+    const input = screen.getByPlaceholderText('태그 추가');
+
+    input.focus();
+    await user.keyboard('{Backspace}');
+
+    expect(onRemoveLast).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not call onRemoveLast when Backspace is pressed and the input has text', async () => {
+    const user = userEvent.setup();
+    const onRemoveLast = vi.fn();
+    render(
+      <ChipInput
+        tags={['React']}
+        onAddTag={vi.fn()}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={onRemoveLast}
+        placeholder="태그 추가"
+      />,
+    );
+    const input = screen.getByPlaceholderText('태그 추가');
+
+    await user.type(input, 'Vu');
+    await user.keyboard('{Backspace}');
+
+    expect(onRemoveLast).not.toHaveBeenCalled();
+    expect(input).toHaveValue('V');
+  });
+
+  it('should call onRemoveLast on empty-input Backspace even when there are no chips', async () => {
+    const user = userEvent.setup();
+    const onRemoveLast = vi.fn();
+    render(
+      <ChipInput
+        tags={[]}
+        onAddTag={vi.fn()}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={onRemoveLast}
+        placeholder="태그 추가"
+      />,
+    );
+    const input = screen.getByPlaceholderText('태그 추가');
+
+    input.focus();
+    await user.keyboard('{Backspace}');
+
+    expect(onRemoveLast).toHaveBeenCalledTimes(1);
   });
 });
