@@ -155,4 +155,24 @@ describe('NoteEditor (태그 삭제 후 저장)', () => {
       }),
     );
   });
+
+  // 시나리오 2.3(TAG-3) — Backspace로 마지막 칩 삭제 후 저장
+  it('should persist tags without the last one when the last chip is removed via Backspace and saved', async () => {
+    const user = userEvent.setup();
+    await openNoteWithTags(['React', 'TypeScript']);
+
+    // 태그 input(placeholder)에 포커스 → 빈 상태에서 Backspace → 마지막 칩(TypeScript) 삭제
+    const input = await screen.findByPlaceholderText('태그 추가');
+    input.focus();
+    await user.keyboard('{Backspace}');
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitFor(() =>
+      expect(api.updateNote).toHaveBeenCalledWith('1', {
+        title: '제목1',
+        content: '본문1',
+        tags: ['React'],
+      }),
+    );
+  });
 });

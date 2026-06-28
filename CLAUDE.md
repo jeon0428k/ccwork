@@ -103,6 +103,28 @@ Conventional Commits 형식을 강제한다 (commitlint + husky).
 - `src/test-setup.ts`에서 jest-dom matchers 설정
 - 테스트 실행 전 JSON Server가 필요 없도록 API는 모킹해서 사용
 
+## TDD 이슈 사이클 (워크플로우)
+
+새 이슈 작업은 **반드시 다음 순서**로 진행한다. Claude는 이 흐름을 인지하고, 현재 단계가 끝나면 **다음 단계를 제안**한다.
+
+| #   | 단계                                                  | 도구  | 산출물                                                     |
+| --- | ----------------------------------------------------- | ----- | ---------------------------------------------------------- |
+| 1   | `/test-scenarios N`                                   | skill | 시그니처 + 시나리오 (`docs/features/{feature}/issue-N.md`) |
+| 2   | `/tdd-red N`                                          | skill | 실패 테스트 작성 (`*.test.ts(x)`)                          |
+| 3   | `/tdd-green N`                                        | skill | 최소 구현, 테스트 전체 통과                                |
+| 4   | `@ac-verifier N`                                      | agent | AC 충족 독립 검증 (**테스트 통과 ≠ AC 충족**)              |
+| 5   | `/tdd-refactor N`                                     | skill | 구조 개선, 깨지면 즉시 롤백                                |
+| 6   | `/security-review N`                                  | skill | 타입·보안 점검 (tsc·npm audit·env)                         |
+| 7   | commit → PR `--base dev` → squash merge → 이슈 클로즈 | —     | 분리 커밋(docs/test/feat) 권장                             |
+
+### 흐름 제어 규칙 (Claude 행동 지침)
+
+- **각 단계는 인간 승인 게이트가 있다. 자동으로 다음 단계로 넘어가지 말 것.** 한 단계를 마치면 결과를 보고하고 다음 단계를 **제안**한 뒤 사용자의 지시를 기다린다.
+- 단계 내부의 게이트(`test-scenarios`의 시그니처/시나리오 승인, `tdd-refactor`/`security-review`의 수정 승인 등)도 동일하게 멈춘다.
+- 사용자가 단계를 건너뛰거나 순서를 바꾸려 하면, 그 영향을 짚어준 뒤 사용자 결정을 따른다.
+- 작업 브랜치는 **`dev`에서 분기**하고, PR은 **`dev`를 베이스**로 보낸다. 이슈 의존성이 있으면 선행 이슈가 **`dev`에 머지된 뒤** 그 `dev`에서 분기한다(예: TAG-2는 TAG-1 머지 후 `dev`에서 분기).
+- 커밋은 단계별로 분리(`docs:` 시나리오 → `test:` Red → `feat:` Green)하는 것을 기본으로 한다.
+
 ## 향후 추가 예정 (강의 진행 중)
 
 - `Note` 타입에 `tags` 필드 추가

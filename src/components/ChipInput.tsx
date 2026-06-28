@@ -5,11 +5,18 @@ interface ChipInputProps {
   tags: string[];
   onAddTag: (raw: string) => void; // Enter/쉼표 시
   onRemoveTag: (tag: string) => void; // 칩 × 클릭 시
+  onRemoveLast: () => void; // 빈 input + Backspace 시
   placeholder?: string;
 }
 
 // dumb 컴포넌트: 내부 텍스트 상태만 보유, 확정 시 onAddTag 위임 후 비움
-export function ChipInput({ tags, onAddTag, onRemoveTag, placeholder }: ChipInputProps) {
+export function ChipInput({
+  tags,
+  onAddTag,
+  onRemoveTag,
+  onRemoveLast,
+  placeholder,
+}: ChipInputProps) {
   const [text, setText] = useState('');
 
   const commit = () => {
@@ -22,6 +29,8 @@ export function ChipInput({ tags, onAddTag, onRemoveTag, placeholder }: ChipInpu
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault(); // 쉼표 문자가 입력값에 들어가지 않도록 차단
       commit();
+    } else if (e.key === 'Backspace' && text === '') {
+      onRemoveLast(); // 빈 input에서만 마지막 칩 삭제 (텍스트 있으면 일반 문자 삭제)
     }
   };
 
