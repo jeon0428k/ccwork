@@ -165,7 +165,8 @@ describe('ChipInput (Backspace)', () => {
         placeholder="태그 추가"
       />,
     );
-    const input = screen.getByPlaceholderText('태그 추가');
+    // 칩이 있어 placeholder가 숨겨지므로 aria-label로 조회
+    const input = screen.getByRole('textbox', { name: '태그 입력' });
 
     input.focus();
     await user.keyboard('{Backspace}');
@@ -185,7 +186,7 @@ describe('ChipInput (Backspace)', () => {
         placeholder="태그 추가"
       />,
     );
-    const input = screen.getByPlaceholderText('태그 추가');
+    const input = screen.getByRole('textbox', { name: '태그 입력' });
 
     await user.type(input, 'Vu');
     await user.keyboard('{Backspace}');
@@ -251,5 +252,39 @@ describe('ChipInput (입력 길이 제한)', () => {
 
     expect(onAddTag).toHaveBeenCalledWith('   ');
     expect(input).toHaveValue('');
+  });
+});
+
+// 시나리오 2.1(TAG-6) — ChipInput 조건부 placeholder
+describe('ChipInput (빈 상태 placeholder)', () => {
+  it('should show the placeholder text on the input when there are no tags', () => {
+    render(
+      <ChipInput
+        tags={[]}
+        onAddTag={vi.fn()}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 입력 후 Enter"
+      />,
+    );
+
+    expect(screen.getByRole('textbox', { name: '태그 입력' })).toHaveAttribute(
+      'placeholder',
+      '태그 입력 후 Enter',
+    );
+  });
+
+  it('should hide the placeholder (no placeholder attribute) when there is at least one tag', () => {
+    render(
+      <ChipInput
+        tags={['React']}
+        onAddTag={vi.fn()}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 입력 후 Enter"
+      />,
+    );
+
+    expect(screen.getByRole('textbox', { name: '태그 입력' })).not.toHaveAttribute('placeholder');
   });
 });
