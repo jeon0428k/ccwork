@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import * as api from '../api/notes';
+import type { Note } from '../types/note';
 import { NotesProvider } from '../context/NotesContext';
 import { NoteEditor } from './NoteEditor';
 
@@ -82,8 +83,8 @@ describe('NoteEditor (태그 표시)', () => {
 
   it('should render an empty tag area without error when opening a legacy note without tags', async () => {
     vi.mocked(api.fetchNotes).mockResolvedValue([
-      // 레거시 노트: tags 필드 없음
-      { id: '1', title: '레거시', content: '본문', createdAt: '', updatedAt: '' },
+      // 레거시 노트: tags 필드 없음 (구버전 데이터 시뮬레이션 — non-optional 타입을 의도적으로 우회)
+      { id: '1', title: '레거시', content: '본문', createdAt: '', updatedAt: '' } as Note,
     ]);
 
     await openNote();
