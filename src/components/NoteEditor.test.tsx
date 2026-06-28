@@ -212,3 +212,27 @@ describe('NoteEditor (중복 태그 방지)', () => {
     );
   });
 });
+
+// 시나리오 2.3(TAG-5) — NoteEditor (trim 통합)
+describe('NoteEditor (입력 검증)', () => {
+  it('should persist the trimmed tag React (not padded) when a padded value is entered and saved', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.createNote).mockResolvedValue({
+      id: '2',
+      title: '제목',
+      content: '',
+      tags: ['React'],
+      createdAt: '',
+      updatedAt: '',
+    });
+    renderEditor({ selectedNoteId: null, isCreating: true, onDone: vi.fn() });
+
+    await user.type(screen.getByPlaceholderText('제목'), '제목');
+    await user.type(screen.getByPlaceholderText('태그 추가'), '  React  {Enter}');
+    await user.click(screen.getByRole('button', { name: '저장' }));
+
+    await waitFor(() =>
+      expect(api.createNote).toHaveBeenCalledWith({ title: '제목', content: '', tags: ['React'] }),
+    );
+  });
+});

@@ -133,6 +133,68 @@ describe('useTagInput.removeTag', () => {
   });
 });
 
+// 시나리오 2.1(TAG-5) — addTag 입력 검증(trim·15자·10개)
+describe('useTagInput.addTag (입력 검증)', () => {
+  it('should not add a tag when the value is only whitespace', () => {
+    const { result } = renderHook(() => useTagInput([]));
+
+    act(() => result.current.addTag('   '));
+
+    expect(result.current.tags).toEqual([]);
+  });
+
+  it('should store the trimmed value when the input is surrounded by whitespace', () => {
+    const { result } = renderHook(() => useTagInput([]));
+
+    act(() => result.current.addTag('  React  '));
+
+    expect(result.current.tags).toEqual(['React']);
+  });
+
+  it('should treat a whitespace-padded value as a duplicate of an existing tag', () => {
+    const { result } = renderHook(() => useTagInput(['React']));
+
+    act(() => result.current.addTag('  react  '));
+
+    expect(result.current.tags).toEqual(['React']);
+  });
+
+  it('should not add a tag longer than 15 characters', () => {
+    const { result } = renderHook(() => useTagInput([]));
+
+    act(() => result.current.addTag('x'.repeat(16)));
+
+    expect(result.current.tags).toEqual([]);
+  });
+
+  it('should add a tag of exactly 15 characters', () => {
+    const { result } = renderHook(() => useTagInput([]));
+    const fifteen = 'x'.repeat(15);
+
+    act(() => result.current.addTag(fifteen));
+
+    expect(result.current.tags).toEqual([fifteen]);
+  });
+
+  it('should not add an 11th tag when 10 already exist', () => {
+    const ten = Array.from({ length: 10 }, (_, i) => `tag${i}`);
+    const { result } = renderHook(() => useTagInput(ten));
+
+    act(() => result.current.addTag('eleventh'));
+
+    expect(result.current.tags).toHaveLength(10);
+  });
+
+  it('should add the 10th tag when 9 already exist', () => {
+    const nine = Array.from({ length: 9 }, (_, i) => `tag${i}`);
+    const { result } = renderHook(() => useTagInput(nine));
+
+    act(() => result.current.addTag('tenth'));
+
+    expect(result.current.tags).toHaveLength(10);
+  });
+});
+
 // 시나리오 2.1(TAG-3) — removeLast
 describe('useTagInput.removeLast', () => {
   it('should remove the last tag from tags when there is at least one tag', () => {
