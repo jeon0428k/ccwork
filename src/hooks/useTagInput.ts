@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+const MAX_TAG_LENGTH = 15; // 1개 태그 최대 길이
+const MAX_TAGS = 10; // 노트당 최대 태그 개수
+
 interface UseTagInput {
   tags: string[];
   addTag: (raw: string) => void; // Enter/쉼표 확정 시
@@ -11,13 +14,16 @@ interface UseTagInput {
 export function useTagInput(initialTags: string[]): UseTagInput {
   const [tags, setTags] = useState<string[]>(initialTags);
 
-  // 빈값 + 대소문자 무시 중복 게이트. trim·길이·개수는 TAG-5
+  // ADR-4 게이트: trim → 빈값 → 15자 → 중복(대소문자 무시) → 10개. 모두 조용히 무시
   const addTag = (raw: string) => {
-    if (!raw) return;
-    // 중복이면 원본 표기를 유지한 채 무시 (조용히 input만 비워짐)
-    setTags((prev) =>
-      prev.some((t) => t.toLowerCase() === raw.toLowerCase()) ? prev : [...prev, raw],
-    );
+    const value = raw.trim();
+    if (!value) return;
+    if (value.length > MAX_TAG_LENGTH) return;
+    setTags((prev) => {
+      if (prev.some((t) => t.toLowerCase() === value.toLowerCase())) return prev; // 중복
+      if (prev.length >= MAX_TAGS) return prev; // 개수 한도
+      return [...prev, value]; // trim된 원본 표기 저장
+    });
   };
 
   // 값 정확 일치로 제거. 미존재 태그면 no-op (filter 결과 동일)

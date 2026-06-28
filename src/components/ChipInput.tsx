@@ -45,6 +45,7 @@ export function ChipInput({
         onChange={(e) => setText(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
+        maxLength={15}
         className="flex-1 min-w-32 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground/50"
       />
     </div>

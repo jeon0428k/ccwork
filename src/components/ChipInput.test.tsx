@@ -214,3 +214,42 @@ describe('ChipInput (Backspace)', () => {
     expect(onRemoveLast).toHaveBeenCalledTimes(1);
   });
 });
+
+// 시나리오 2.2(TAG-5) — ChipInput 입력 길이 차단
+describe('ChipInput (입력 길이 제한)', () => {
+  it('should cap the text input at 15 characters via maxLength', () => {
+    render(
+      <ChipInput
+        tags={[]}
+        onAddTag={vi.fn()}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 추가"
+      />,
+    );
+    const input = screen.getByPlaceholderText('태그 추가');
+
+    expect(input).toHaveAttribute('maxlength', '15');
+  });
+
+  // 역할 분담 고정: 공백 판정은 훅(addTag)이 담당, ChipInput은 위임만 + 무조건 비움
+  it('should delegate a whitespace-only value to onAddTag and clear the input on Enter', async () => {
+    const user = userEvent.setup();
+    const onAddTag = vi.fn();
+    render(
+      <ChipInput
+        tags={[]}
+        onAddTag={onAddTag}
+        onRemoveTag={vi.fn()}
+        onRemoveLast={vi.fn()}
+        placeholder="태그 추가"
+      />,
+    );
+    const input = screen.getByPlaceholderText('태그 추가');
+
+    await user.type(input, '   {Enter}');
+
+    expect(onAddTag).toHaveBeenCalledWith('   ');
+    expect(input).toHaveValue('');
+  });
+});
