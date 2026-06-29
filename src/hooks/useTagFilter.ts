@@ -27,13 +27,16 @@ export function useTagFilter(notes: Note[]): UseTagFilterResult {
     setActiveTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   };
 
+  // FILTER-2: activeTags가 비면 전체, 아니면 OR 매칭(노트 tags ∩ activeTags ≠ ∅).
+  const visibleNotes = useMemo(() => {
+    if (activeTags.length === 0) return notes;
+    return notes.filter((note) => (note.tags ?? []).some((tag) => activeTags.includes(tag)));
+  }, [notes, activeTags]);
+
   return {
     allTags,
     activeTags,
     toggleTag,
-    // FILTER-2 (TDD Red): 시그니처만 — 동작 미구현. 접근하면 throw 하여 진짜 Red 로 둔다.
-    get visibleNotes(): Note[] {
-      throw new Error('useTagFilter.visibleNotes not implemented (TDD Red)');
-    },
+    visibleNotes,
   };
 }

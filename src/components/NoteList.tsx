@@ -8,10 +8,9 @@ interface NoteListProps {
   onSelect: (id: string) => void;
 }
 
-export function NoteList({ notes: _notes, selectedNoteId, onSelect }: NoteListProps) {
-  // FILTER-2 (TDD Red): 주입된 notes 는 아직 사용하지 않는다. Green 단계에서 context pull 을 대체한다.
-  void _notes;
-  const { notes, loading, error, deleteNote } = useNotes();
+export function NoteList({ notes, selectedNoteId, onSelect }: NoteListProps) {
+  // FILTER-2: 표시할 노트는 prop으로 주입받는다. loading/error/deleteNote만 context에서 가져온다.
+  const { loading, error, deleteNote } = useNotes();
 
   if (loading) {
     return <p className="text-sm text-muted-foreground text-center py-8">로딩 중...</p>;
