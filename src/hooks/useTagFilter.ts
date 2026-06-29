@@ -1,3 +1,4 @@
+import { useMemo, useState } from 'react';
 import { Note } from '../types/note';
 
 interface UseTagFilterResult {
@@ -6,8 +7,23 @@ interface UseTagFilterResult {
   toggleTag: (tag: string) => void;
 }
 
-// TDD Red 스텁 — 구현은 tdd-green에서. 현재는 호출 시 실패한다.
+// 노트들의 태그 합집합(중복 제거, 첫 등장 순서 유지) + 켜진 태그 토글 상태.
 export function useTagFilter(notes: Note[]): UseTagFilterResult {
-  void notes;
-  throw new Error('useTagFilter not implemented');
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+
+  const allTags = useMemo(() => {
+    const seen: string[] = [];
+    for (const note of notes) {
+      for (const tag of note.tags) {
+        if (!seen.includes(tag)) seen.push(tag);
+      }
+    }
+    return seen;
+  }, [notes]);
+
+  const toggleTag = (tag: string) => {
+    setActiveTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
+  };
+
+  return { allTags, activeTags, toggleTag };
 }
