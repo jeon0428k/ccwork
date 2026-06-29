@@ -32,14 +32,14 @@ test('E2E-1: 태그를 추가해 저장하면 새로고침 후에도 유지된�
     const input = page.getByPlaceholder('태그 입력 후 Enter');
     await input.fill('업무');
     await input.press('Enter');
-    await expect(page.getByText('업무')).toBeVisible();
+    await expect(page.getByRole('button', { name: '업무 태그 삭제' })).toBeVisible();
     await saveAndWaitPersisted(page);
   });
 
   await test.step('새로고침 후 재오픈 시 태그가 영속화되어 있다', async () => {
     await page.reload();
     await page.getByText('태그 추가용 노트').click();
-    await expect(page.getByText('업무')).toBeVisible();
+    await expect(page.getByRole('button', { name: '업무 태그 삭제' })).toBeVisible();
   });
 });
 
@@ -48,12 +48,12 @@ test('E2E-2: 태그를 삭제해 저장하면 새로고침 후에도 삭제가 �
 }) => {
   await test.step('태그가 달린 노트를 연다', async () => {
     await page.getByText('태그 삭제용 노트').click();
-    await expect(page.getByText('임시')).toBeVisible();
+    await expect(page.getByRole('button', { name: '임시 태그 삭제' })).toBeVisible();
   });
 
   await test.step('칩의 × 버튼으로 태그를 삭제하고 저장한다', async () => {
     await page.getByRole('button', { name: '임시 태그 삭제' }).click();
-    await expect(page.getByText('임시')).toBeHidden();
+    await expect(page.getByRole('button', { name: '임시 태그 삭제' })).toBeHidden();
     await saveAndWaitPersisted(page);
   });
 
@@ -61,7 +61,7 @@ test('E2E-2: 태그를 삭제해 저장하면 새로고침 후에도 삭제가 �
     await page.reload();
     await page.getByText('태그 삭제용 노트').click();
     await expect(page.getByPlaceholder('제목')).toHaveValue('태그 삭제용 노트');
-    await expect(page.getByText('임시')).toBeHidden();
+    await expect(page.getByRole('button', { name: '임시 태그 삭제' })).toBeHidden();
   });
 });
 
@@ -86,6 +86,6 @@ test('E2E-3: 새 노트를 태그와 함께 만들면 목록에 추가되고 태
     await page.reload();
     await expect(page.getByText(title)).toBeVisible();
     await page.getByText(title).click();
-    await expect(page.getByText('신규')).toBeVisible();
+    await expect(page.getByRole('button', { name: '신규 태그 삭제' })).toBeVisible();
   });
 });
