@@ -69,3 +69,14 @@ export function TagFilter({ allTags, activeTags, onToggle }: TagFilterProps): JS
 | AC3: 칩 클릭 시 "켜짐" 상태 시각 구분(재클릭 시 꺼짐)                         | toggleTag 추가/제거 + TagFilter aria-pressed + onToggle 호출 |
 
 누락 AC: 없음 (3/3 커버).
+
+## 갭 보강 시나리오 (ac-verifier 피드백)
+
+ac-verifier가 AC1의 "사이드바에 표시" 통합 누락과 AC3의 클릭→시각변화 end-to-end 검증 부재를 지적.
+`Sidebar` 컨테이너(provider 내부에서 `useNotes()`+`useTagFilter` 연결)를 추가해 보강한다.
+
+### Sidebar (통합 컨테이너)
+
+- `[정상] Sidebar - should 노트들의 태그 칩을 NoteList 위에 렌더 when notes에 tags가 있음` (AC1 통합)
+- `[정상] Sidebar - should 칩을 aria-pressed=true로 바꿈 when 꺼진 칩을 클릭` (AC3 end-to-end)
+- `[정상] Sidebar - should 칩을 aria-pressed=false로 되돌림 when 켜진 칩을 재클릭` (AC3 end-to-end)
