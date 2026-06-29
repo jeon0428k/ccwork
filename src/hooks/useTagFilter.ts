@@ -14,7 +14,8 @@ export function useTagFilter(notes: Note[]): UseTagFilterResult {
   const allTags = useMemo(() => {
     const seen: string[] = [];
     for (const note of notes) {
-      for (const tag of note.tags) {
+      // 영속 데이터에 tags 필드가 없는(레거시) 노트가 있을 수 있어 방어한다.
+      for (const tag of note.tags ?? []) {
         if (!seen.includes(tag)) seen.push(tag);
       }
     }

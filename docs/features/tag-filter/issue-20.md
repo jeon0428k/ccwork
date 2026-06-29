@@ -46,6 +46,7 @@ export function TagFilter({ allTags, activeTags, onToggle }: TagFilterProps): JS
 - `[정상] useTagFilter.allTags - should 중복 태그를 한 번만 포함 when 여러 노트가 같은 태그를 가짐 (예: ["work","idea"],["work"] → ["work","idea"])`
 - `[경계] useTagFilter.allTags - should 빈 배열 반환 when 어떤 노트에도 태그가 없음`
 - `[경계] useTagFilter.allTags - should 빈 배열 반환 when notes가 빈 배열`
+- `[경계] useTagFilter.allTags - should tags 필드 없는(레거시) 노트를 빈 태그로 취급 when 영속 데이터에 tags 누락 (E2E가 잡은 크래시 버그)`
 - `[정상] useTagFilter.activeTags - should 초기값 빈 배열 when 훅 초기 렌더`
 - `[정상] useTagFilter.toggleTag - should 태그를 activeTags에 추가 when 꺼진 태그를 toggle`
 - `[정상] useTagFilter.toggleTag - should 태그를 activeTags에서 제거 when 켜진 태그를 다시 toggle`

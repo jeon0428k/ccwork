@@ -46,6 +46,21 @@ describe('useTagFilter.allTags', () => {
 
     expect(result.current.allTags).toEqual([]);
   });
+
+  it('should treat a note without a tags field as having no tags (no crash)', () => {
+    // 레거시/시드 데이터: tags 필드가 없는 노트 (Note 타입엔 있으나 영속 데이터엔 누락 가능)
+    const legacy = {
+      id: '0',
+      title: 'legacy',
+      content: '',
+      createdAt: '',
+      updatedAt: '',
+    } as unknown as Note;
+
+    const { result } = renderHook(() => useTagFilter([legacy, note('1', ['work'])]));
+
+    expect(result.current.allTags).toEqual(['work']);
+  });
 });
 
 // issue-20 §2 — useTagFilter.activeTags / toggleTag
