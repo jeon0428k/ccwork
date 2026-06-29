@@ -71,6 +71,19 @@ description: >
 - PR body에 **`Closes #$ARGUMENTS`** 포함.
 - 생성 후 **이슈에 PR 링크 코멘트**(`gh issue comment`).
 
+> ⚠️ **이슈 자동 종료 주의**: `Closes #N` 키워드는 **기본 브랜치(main) 머지 때만** 발동한다.
+> 이 워크플로우는 `dev`를 base로 하므로 머지해도 이슈가 자동으로 닫히지 않는다.
+> **머지 확인 후 `gh issue close $ARGUMENTS`로 수동 종료**할 것(8단계 정리와 함께).
+
+### 8. 머지 후 정리 (사람이 머지를 확인한 뒤)
+
+PR 머지가 확인되면:
+
+- `gh issue close $ARGUMENTS` — 이슈 수동 종료(위 주의 참고).
+- `dev` 체크아웃 → `git pull`로 머지분 반영.
+- 작업 브랜치 삭제: 로컬(`git branch -d feat/<issue-slug>`) + 원격(`git push origin --delete feat/<issue-slug>`).
+- 다음 이슈는 이 최신 `dev`에서 분기한다.
+
 ## Guidelines / Constraints
 
 - **컨테이너는 순서만 보장한다.** 각 단계 호출 사이에 "▶ N단계: … 시작" 류의 진행 메시지만 출력한다.
@@ -82,5 +95,5 @@ description: >
 ## Output
 
 - 각 단계의 산출물은 해당 하위 스킬이 만든다(시나리오 문서, 실패 테스트, 구현, 리팩터, 점검 보고, PR).
-- 최종 산출물: `feature/<spec>`를 base로 한 PR(본문에 `Closes #$ARGUMENTS`) + 이슈의 PR 링크 코멘트.
+- 최종 산출물: `dev`를 base로 한 PR(본문에 `Closes #$ARGUMENTS`) + 이슈의 PR 링크 코멘트. 머지 후 이슈 수동 종료 + 브랜치 정리(8단계).
 - 중단 시: 멈춘 단계 번호 + 사유를 출력.
